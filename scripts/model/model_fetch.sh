@@ -9,7 +9,9 @@ set -euo pipefail
 
 MODEL_SIZE="${1:-7b}"
 
-MODEL_DIR="${MCC_MODEL_DIR:-${HOME}/model_cache/llama}"
+HOME_MODEL_DIR="${HOME}/model_cache/llama"
+EXTRA_FS="/mydata"  # CloudLab extra disk; the home disk is only ~60 GB
+MODEL_DIR="${MCC_MODEL_DIR:-${HOME_MODEL_DIR}}"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="${SCRIPT_DIR}/model_config.sh"
@@ -44,7 +46,26 @@ case "$MODEL_SIZE" in
   405b)
     # Original Meta Llama 3.1 Instruct weights, Q4_K_M, in six GGUF shards.
     # llama.cpp loads all shards when given the first shard's path.
+    # 246 GB does not fit on the home disk: use the CloudLab extra disk,
+    # creating it on first use (needs passwordless sudo, as on CloudLab).
+    if [ -z "${MCC_MODEL_DIR:-}" ]; then
+      if ! mountpoint -q "$EXTRA_FS" 2>/dev/null; then
+        echo "Creating ${EXTRA_FS} on the unused local disk..."
+        sudo mkdir -p "$EXTRA_FS"
+        sudo /usr/local/etc/emulab/mkextrafs.pl -f "$EXTRA_FS"
+      fi
+      sudo chown "$USER" "$EXTRA_FS"
+      MODEL_DIR="${EXTRA_FS}/model_cache/llama"
+    fi
     MODEL_DIR="${MODEL_DIR}/405b"
+    # Move shards an earlier run saved on the home disk; partial files
+    # resume where they stopped.
+    if [ -d "${HOME_MODEL_DIR}/405b" ] && [ "${HOME_MODEL_DIR}/405b" != "$MODEL_DIR" ]; then
+      echo "Moving earlier 405B download from ${HOME_MODEL_DIR}/405b to ${MODEL_DIR}"
+      mkdir -p "$MODEL_DIR"
+      mv "${HOME_MODEL_DIR}/405b/"* "$MODEL_DIR/" 2>/dev/null || true
+      rmdir "${HOME_MODEL_DIR}/405b" 2>/dev/null || true
+    fi
     MODEL_STEM="Meta-Llama-3.1-405B-Instruct-Q4_K_M"
     MODEL_FILE="${MODEL_DIR}/${MODEL_STEM}-00001-of-00006.gguf"
     MODEL_PATH_IN_CONTAINER="/models/${MODEL_STEM}-00001-of-00006.gguf"
@@ -70,6 +91,15 @@ mkdir -p "$MODEL_DIR"
 if [ "$MODEL_SIZE" = "405b" ]; then
   echo "405B Q4_K_M: about 246 GB of weights across six files."
   echo "Recommended CPU node: 384 GB RAM and at least 300 GB free disk."
+  echo "Model directory: $MODEL_DIR"
+  # Stop early instead of failing mid-shard with curl error 23.
+  HAVE_GB=$(du -s --block-size=1G "$MODEL_DIR" | cut -f1)
+  FREE_GB=$(df --output=avail --block-size=1G "$MODEL_DIR" | tail -1 | tr -d ' ')
+  if [ $((HAVE_GB + FREE_GB)) -lt 260 ]; then
+    echo "ERROR: ${FREE_GB} GB free in $MODEL_DIR (${HAVE_GB} GB already downloaded); need ~260 GB in total." >&2
+    echo "Set MCC_MODEL_DIR to a larger disk." >&2
+    exit 1
+  fi
   for part in 1 2 3 4 5 6; do
     printf -v SHARD_NAME '%s-%05d-of-00006.gguf' "$MODEL_STEM" "$part"
     SHARD_FILE="${MODEL_DIR}/${SHARD_NAME}"
