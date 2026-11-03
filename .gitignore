@@ -46,3 +46,6 @@ __pycache__/
 .mccvenv/
 .venv/
 venv/
+
+# written per node by scripts/model/model_fetch.sh
+scripts/model/model_config.sh

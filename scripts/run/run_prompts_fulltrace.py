@@ -86,17 +86,46 @@ def get_container_pid(container: str) -> int:
     return int(raw)
 
 
-def reset_server(reset_script: str, timeout: float = 90.0) -> None:
-    result = subprocess.run(
-        ["bash", reset_script],
-        timeout=timeout, capture_output=True, text=True,
-    )
+def reset_server(reset_script: str, timeout: float = 90.0) -> float:
+    """Restart the server; output streams to the terminal so a long 405B load
+    shows progress. Returns the reset duration in seconds."""
+    t0 = time.time()
+    try:
+        result = subprocess.run(["bash", reset_script], timeout=timeout)
+    except subprocess.TimeoutExpired:
+        raise RuntimeError(f"reset_server.sh did not finish within {timeout:.0f}s")
     if result.returncode != 0:
-        raise RuntimeError(
-            f"reset_server.sh failed (exit {result.returncode}):\n"
-            f"  stdout: {result.stdout.strip()}\n"
-            f"  stderr: {result.stderr.strip()}"
-        )
+        raise RuntimeError(f"reset_server.sh failed (exit {result.returncode}); see output above")
+    return time.time() - t0
+
+
+def node_info(container: str) -> dict:
+    """Facts that help explain differences between runs later."""
+    def first_line(cmd: list[str]) -> str:
+        try:
+            return subprocess.check_output(cmd, text=True, timeout=15,
+                                           stderr=subprocess.DEVNULL).strip().splitlines()[0]
+        except Exception:
+            return ""
+    cpu = ""
+    try:
+        for line in open("/proc/cpuinfo"):
+            if line.startswith("model name"):
+                cpu = line.split(":", 1)[1].strip()
+                break
+    except OSError:
+        pass
+    repo = Path(__file__).resolve().parents[2]
+    image = first_line(["docker", "inspect", "-f", "{{.Config.Image}}", container])
+    return {
+        "hostname": first_line(["hostname", "-f"]),
+        "kernel": first_line(["uname", "-r"]),
+        "cpu_model": cpu,
+        "git_commit": first_line(["git", "-C", str(repo), "rev-parse", "HEAD"]),
+        "git_branch": first_line(["git", "-C", str(repo), "rev-parse", "--abbrev-ref", "HEAD"]),
+        "llama_cpp_ref": first_line(["docker", "inspect", "-f",
+                                     '{{index .Config.Labels "llama_cpp_ref"}}', image or container]),
+    }
 
 
 def drop_caches() -> None:
@@ -266,9 +295,10 @@ def run() -> None:
     # ── 1. Reset server once ──────────────────────────────────────────────────
     print("→ resetting server ...", flush=True)
     try:
-        reset_server(args.reset_script, timeout=args.reset_timeout_s)
+        reset_s = reset_server(args.reset_script, timeout=args.reset_timeout_s)
     except RuntimeError as e:
         raise SystemExit(f"Reset failed: {e}")
+    print(f"  reset took {reset_s:.0f}s", flush=True)
 
     # ── 2. Drop caches + baseline sleep ───────────────────────────────────────
     print("→ dropping caches ...", flush=True)
@@ -363,6 +393,10 @@ def run() -> None:
         "t_trace_start_ns": t_trace_start,
         "t_trace_end_ns": t_trace_end,
         "total_trace_ms": (t_trace_end - t_trace_start) / 1e6,
+        "load_mode": cfg.get("LOAD_MODE", "mmap"),
+        "server_extra_args": os.environ.get("MCC_SERVER_ARGS") or cfg.get("SERVER_ARGS", ""),
+        "reset_s": round(reset_s, 1),
+        **node_info(args.container),
     }
     (out_dir / "trace_meta.json").write_text(
         json.dumps(trace_meta, indent=2), encoding="utf-8"
