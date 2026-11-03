@@ -62,6 +62,8 @@ fi
 echo "Starting llama server: $NAME  model=${MODEL_SIZE}  ctx=${CTX_SIZE}  cpuset=${CPUSET}  load=${LOAD_MODE} ${SERVER_ARGS}"
 docker run -d \
   --name "$NAME" \
+  --init \
+  --stop-timeout 60 \
   ${DOCKER_EXTRA[@]+"${DOCKER_EXTRA[@]}"} \
   --cpuset-cpus "${CPUSET}" \
   -p "${PORT}:8000" \

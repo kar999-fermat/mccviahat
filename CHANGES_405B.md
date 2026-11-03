@@ -5,6 +5,11 @@ adds checks; the prompts, collector and feature extraction are unchanged. The 70
 setup keeps its current loading behaviour, so new 70B traces stay comparable with
 existing ones.
 
+## Baseline (Romain, Nov 2)
+One node: roughly 1–2 h to fetch 405B. With 3–4 nodes at the same time: more than
+1 h per shard (6 shards, so 6+ h). The server reset failed with a "zombie"
+container error.
+
 ## The three problems and what changed
 
 ### 1. Fetching 405B is very slow
@@ -48,6 +53,13 @@ node's disk (likely spinning HDDs on c6420). Changes:
   load, stops waiting right away if the container dies (e.g. out of memory) and
   prints its last log lines, and appends a row to `~/mcc_reset_times.csv` so load
   times can be compared.
+- **Fix for the "container's main process becomes a zombie during shutdown"
+  reset error.** `llama_down.sh` used `docker rm -f`, which kills the server at
+  once; a process holding hundreds of GB can take minutes to exit, so the removal
+  could fail and break the reset. It now stops the server cleanly first
+  (`docker stop -t 60`), then retries removal for up to 10 min until the container
+  is really gone. The server also now runs with `docker run --init`, so a proper
+  init process reaps child processes.
 - **The runner now shows reset progress live.** Before, it captured the output,
   so a 30+ min 405B load looked frozen.
 - Optional extra server flags are saved in the config, e.g.
