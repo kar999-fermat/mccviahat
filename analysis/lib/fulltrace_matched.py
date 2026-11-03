@@ -270,7 +270,10 @@ def _analyze_feature(job):
     residuals["run_residual_sd"] = (model.base @ full["alpha"]) / np.sqrt(full["variances"]["residual"])
     omitted = []
     for grouping in ("day", "node"):
-        for group in sorted(points[grouping].unique()):
+        groups = sorted(points[grouping].unique())
+        if len(groups) < 2:  # omitting the only date/node would leave no data
+            continue
+        for group in groups:
             keep = (points[grouping] != group).to_numpy()
             fitted = CrossPairModel(points.loc[keep]).fit(y[keep])
             value = fitted["mean"] * normalization

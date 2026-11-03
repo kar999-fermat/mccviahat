@@ -9,12 +9,12 @@
     "core_power.throttle__mean_rate",
     "core_power.throttle__per_cycle"
   ],
-  "n_traces": 88,
-  "n_groups": 27,
+  "n_traces": 158,
+  "n_groups": 38,
   "correction": "Bonferroni over two overall E-N tests",
   "estimation": "Gaussian ML",
   "pairing": "every E run vs every N run within node/date; shared-run covariance",
-  "n_cross_pairs": 76,
+  "n_cross_pairs": 189,
   "interval": "studentized parametric bootstrap; pointwise 95%",
   "prediction": "approximate bootstrap mixture for new node and new date"
 }
