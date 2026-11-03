@@ -1,0 +1,61 @@
+condition,prompt_index,n_tokens,title
+neutral,0,411,WiFi
+neutral,1,396,Dishwasher
+neutral,2,376,Kitchen Scale
+neutral,3,378,Ceiling Fan
+neutral,4,387,Thermostat
+neutral,5,376,File a tax return
+neutral,6,392,Renew License
+neutral,7,367,Register Vehicle 
+neutral,8,385,Library Card
+neutral,9,397,Payment deposit
+neutral,10,407,Water Filter 
+neutral,11,373,Read Nutr Label
+neutral,12,356,How to Recycle 
+neutral,13,370,HVAC system 
+neutral,14,431,Bus Schedule 
+neutral,15,408,The water cycle
+neutral,16,421,Sedimentary Rocks
+neutral,17,337,Tides Work
+neutral,18,416,Insect life
+neutral,19,381,Photosyntesis Story
+emotional,0,393,medical
+emotional,1,386,
+emotional,2,390,Natural disaster evacuation
+emotional,3,367,Mountain Climbing accident
+emotional,4,378,House Fire
+emotional,5,369,Plane emergency landing
+emotional,6,360,Shipwreck survival
+emotional,7,354,cave rescue 
+emotional,8,408,Child Gone Missing 
+emotional,9,393,Car Crash
+emotional,10,351,Industrial Accident 
+emotional,11,370,Violent Home Intrusion
+emotional,12,346,Sudden Cariac Arrest  
+emotional,13,351,Wildifre Approaching a town 
+emotional,14,338,Bridge Collapse 
+emotional,15,368,Chemical Spill Evac 
+emotional,16,380,Avalanche Survival Gone Missing 
+emotional,17,329,Kidnapping Escape 
+emotional,18,321,Offshore Oil Rig Emergency
+emotional,19,400,Final Story
+independentMP,0,409,medical
+independentMP,1,402,
+independentMP,2,406,Natural disaster evacuation
+independentMP,3,383,Mountain Climbing accident
+independentMP,4,394,House Fire
+independentMP,5,385,Plane emergency landing
+independentMP,6,376,Shipwreck survival
+independentMP,7,370,cave rescue 
+independentMP,8,424,Child Gone Missing 
+independentMP,9,409,Car Crash
+independentMP,10,367,Industrial Accident 
+independentMP,11,386,Violent Home Intrusion
+independentMP,12,362,Sudden Cariac Arrest  
+independentMP,13,367,Wildifre Approaching a town 
+independentMP,14,354,Bridge Collapse 
+independentMP,15,384,Chemical Spill Evac 
+independentMP,16,396,Avalanche Survival Gone Missing 
+independentMP,17,345,Kidnapping Escape 
+independentMP,18,337,Offshore Oil Rig Emergency
+independentMP,19,416,Final Story
