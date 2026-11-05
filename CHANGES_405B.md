@@ -60,6 +60,10 @@ node's disk (likely spinning HDDs on c6420). Changes:
   (`docker stop -t 60`), then retries removal for up to 10 min until the container
   is really gone. The server also now runs with `docker run --init`, so a proper
   init process reaps child processes.
+- **Fix: the runner crashed right after a successful 405B reset.** Dropping the
+  page cache after reading 246 GB takes much longer than the old 10 s timeout,
+  and the timeout was not caught (`subprocess.TimeoutExpired`). It now allows up
+  to 15 min, reports how long it took, and never crashes the run.
 - **The runner now shows reset progress live.** Before, it captured the output,
   so a 30+ min 405B load looked frozen.
 - Optional extra server flags are saved in the config, e.g.

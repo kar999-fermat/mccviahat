@@ -129,13 +129,19 @@ def node_info(container: str) -> dict:
 
 
 def drop_caches() -> None:
+    # After a 405B load the page cache can hold ~250 GB, and dropping it takes
+    # far longer than the old 10 s limit (the run crashed with TimeoutExpired).
+    t0 = time.time()
     try:
         subprocess.run(
             ["sudo", "-n", "sh", "-c", "sync && echo 3 > /proc/sys/vm/drop_caches"],
-            check=True, capture_output=True, timeout=10.0,
+            check=True, capture_output=True, timeout=900.0,
         )
+        print(f"  caches dropped in {time.time() - t0:.0f}s", flush=True)
     except subprocess.CalledProcessError as e:
         print(f"  ⚠  drop_caches failed: {e.stderr.strip()}")
+    except subprocess.TimeoutExpired:
+        print("  ⚠  drop_caches still running after 900s; continuing anyway")
 
 
 def start_collector(
