@@ -58,8 +58,10 @@ node's disk (likely spinning HDDs on c6420). Changes:
   once; a process holding hundreds of GB can take minutes to exit, so the removal
   could fail and break the reset. It now stops the server cleanly first
   (`docker stop -t 60`), then retries removal for up to 10 min until the container
-  is really gone. The server also now runs with `docker run --init`, so a proper
-  init process reaps child processes.
+  is really gone.
+- `docker run --init` was tried and removed: it made the container's main PID
+  an init process instead of llama-server, so `proc_sample.csv` tracked the wrong
+  process (system-wide `perf stat -a` data was unaffected).
 - **Fix: the runner crashed right after a successful 405B reset.** Dropping the
   page cache after reading 246 GB takes much longer than the old 10 s timeout,
   and the timeout was not caught (`subprocess.TimeoutExpired`). It now allows up
@@ -104,3 +106,30 @@ node's disk (likely spinning HDDs on c6420). Changes:
   `trace_meta.json` fields are written correctly.
 - **Not yet done:** a real 405B load on a c6420. The next step is to time
   `mmap` vs `no-mmap` vs `dio` after a reboot each, on the same node.
+
+## Unattended runs (new): `make_queue.py` + `auto_queue.sh`
+Runs a whole set of traces on one node with no one logged in, keeping the reboot
+between traces. Works for 70b and 405b (it uses whatever `model_fetch.sh` last set).
+
+```bash
+# on the node, after model_fetch.sh + llama_build.sh
+python3 scripts/run/make_queue.py --rounds 3 --batch batch_009_70b --install
+sudo reboot
+```
+
+- **Queue generated from the node number and round count:** labels like
+  `182_1e, 182_1n, 182_1mp, 182_2mp, ...`.
+- **Randomized order within each round** (every round has N, E and MP once, in a
+  freshly drawn order). The seed and full order are saved to
+  `<batch>/queue_plan_<node>.csv`, which travels with the data; `--seed` reproduces it.
+- **10-minute cool-down after each reboot** before the next trace starts
+  (`MCC_COOLDOWN_S`, default 600).
+- **Reboot timing is logged:** each boot logs when the reboot was requested and
+  when the node came back up.
+- A crash can't cause a reboot loop (each line is removed before it runs).
+  Progress: `tail -f ~/mcc_auto.log`. Stop early: `rm ~/mcc_queue.txt`.
+  Uninstall: `crontab -l | grep -v auto_queue.sh | crontab -`.
+- Options: `--conditions n,e` (subset), `--json-e <file>` (e.g. a new emotional
+  prompt set), `--start-round 4` (continue numbering).
+- Time per trace, including the cool-down and reboot: about 40 min for 70b and about 3.5 h for 405b.
+- `check_trace.py` now accepts lowercase labels (`182_1n`).

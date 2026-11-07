@@ -31,7 +31,7 @@ REQUIRED = ["perf_stat.csv", "perf_stat.txt", "proc_sample.csv",
 PAGE_BYTES = 4096
 RSS_GROWTH_WARN_GB = 2.0      # growth during prompt 1 that suggests weights still loading
 FIRST_PROMPT_WARN_RATIO = 1.5
-LABEL_RE = re.compile(r"^\d+_\d+(N|E|MP)$")
+LABEL_RE = re.compile(r"^\d+_\d+(N|E|MP)$", re.IGNORECASE)
 
 
 def check(run_dir: Path) -> tuple[str, list[str]]:
@@ -56,7 +56,7 @@ def check(run_dir: Path) -> tuple[str, list[str]]:
 
     label = meta.get("run_label", run_dir.name)
     if not LABEL_RE.match(label):
-        warns.append(f"run label '{label}' does not follow node#_<k><N|E|MP> (e.g. 232_1N)")
+        warns.append(f"run label '{label}' does not follow node#_<k><n|e|mp> (e.g. 232_1n)")
 
     elapsed = [p["elapsed_ms"] / 1000 for p in log]
     if len(elapsed) >= 3:
