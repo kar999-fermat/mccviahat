@@ -21,7 +21,9 @@ fi
 source "$CONFIG_FILE"
 
 T_START=$(date +%s)
-mem_avail_gb() { awk '/MemAvailable/{print int($2/1048576)}' /proc/meminfo; }
+# MemFree (not MemAvailable): it drops as the model is read in, for mmap
+# loads too, where MemAvailable stays flat because the file cache counts as available.
+mem_avail_gb() { awk '/MemFree/{print int($2/1048576)}' /proc/meminfo; }
 MIN_AVAIL_GB=$(mem_avail_gb)
 
 echo ">>> Stopping llama server (model=${MODEL_SIZE})..."

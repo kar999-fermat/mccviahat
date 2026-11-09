@@ -133,3 +133,15 @@ sudo reboot
   prompt set), `--start-round 4` (continue numbering).
 - Time per trace, including the cool-down and reboot: about 40 min for 70b and about 3.5 h for 405b.
 - `check_trace.py` now accepts lowercase labels (`182_1n`).
+
+## Fixes from the c8220 test run (Nov 7–8)
+- The auto-run itself worked: random order (E, N, MP), 10-minute cool-downs,
+  reboots logged at **163 s and 165 s**, and a clean stop.
+- All three traces failed because the 70b reset timed out: the old 300 s limit
+  (60 × 5 s) was shorter than a cold 70b load on that node. The 70b wait is
+  now up to 15 min (`HEALTH_RETRIES=180`, `RESET_TIMEOUT=1000`); the load
+  itself is unchanged.
+- `model_fetch.sh` now picks the CPU range from the node: below 64 threads it
+  uses all but the last 2 (40 threads → `0-37`). c6420 stays `0-61`.
+- The "RAM free" shown during a reset now uses MemFree, which falls as the
+  model loads (MemAvailable stayed flat for mmap loads).

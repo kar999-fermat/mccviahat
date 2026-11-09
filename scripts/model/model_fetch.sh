@@ -37,8 +37,11 @@ case "$MODEL_SIZE" in
     URL="https://huggingface.co/bartowski/Meta-Llama-3.1-70B-Instruct-GGUF/resolve/main/Meta-Llama-3.1-70B-Instruct-Q4_K_M.gguf"
     CTX_SIZE=2048
     CPUSET="0-61"
-    RESET_TIMEOUT=300
-    HEALTH_RETRIES=60
+    # Cold load after a reboot can take over 5 min on slower disks (it timed
+    # out at 300 s on a c8220), so allow up to 15 min. Only the waiting time
+    # changes; how the model is loaded is the same as before.
+    RESET_TIMEOUT=1000
+    HEALTH_RETRIES=180
     HEALTH_SLEEP=5
     REQUEST_TIMEOUT=3600
     BASELINE_S=5
@@ -261,6 +264,14 @@ else
   mv "$TMP_FILE" "$MODEL_FILE"
   echo "Downloaded:"
   ls -lh "$MODEL_FILE"
+fi
+
+# Nodes with fewer than 64 CPU threads (e.g. c8220: 40) can't use 0-61.
+# Keep the same layout (all but the last 2 threads), so c6420 stays 0-61.
+NCPU=$(nproc)
+if [ "$NCPU" -lt 64 ]; then
+  CPUSET="0-$((NCPU - 3))"
+  echo "Note: this node has ${NCPU} CPU threads; using CPUSET=${CPUSET}."
 fi
 
 LOAD_MODE="${MCC_LOAD_MODE:-$LOAD_MODE_DEFAULT}"
