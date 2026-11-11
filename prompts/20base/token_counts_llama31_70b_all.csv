@@ -1,0 +1,81 @@
+condition,prompt_index,n_tokens,title
+emotional,0,393,medical
+emotional,1,386,
+emotional,2,390,Natural disaster evacuation
+emotional,3,367,Mountain Climbing accident
+emotional,4,378,House Fire
+emotional,5,369,Plane emergency landing
+emotional,6,360,Shipwreck survival
+emotional,7,354,cave rescue 
+emotional,8,408,Child Gone Missing 
+emotional,9,393,Car Crash
+emotional,10,351,Industrial Accident 
+emotional,11,370,Violent Home Intrusion
+emotional,12,346,Sudden Cariac Arrest  
+emotional,13,351,Wildifre Approaching a town 
+emotional,14,338,Bridge Collapse 
+emotional,15,368,Chemical Spill Evac 
+emotional,16,380,Avalanche Survival Gone Missing 
+emotional,17,329,Kidnapping Escape 
+emotional,18,321,Offshore Oil Rig Emergency
+emotional,19,400,Final Story
+neutral,0,411,WiFi
+neutral,1,396,Dishwasher
+neutral,2,376,Kitchen Scale
+neutral,3,378,Ceiling Fan
+neutral,4,387,Thermostat
+neutral,5,376,File a tax return
+neutral,6,392,Renew License
+neutral,7,367,Register Vehicle 
+neutral,8,385,Library Card
+neutral,9,397,Payment deposit
+neutral,10,407,Water Filter 
+neutral,11,373,Read Nutr Label
+neutral,12,356,How to Recycle 
+neutral,13,370,HVAC system 
+neutral,14,431,Bus Schedule 
+neutral,15,408,The water cycle
+neutral,16,421,Sedimentary Rocks
+neutral,17,337,Tides Work
+neutral,18,416,Insect life
+neutral,19,381,Photosyntesis Story
+mechanical,0,401,medical
+mechanical,1,394,
+mechanical,2,398,Natural disaster evacuation
+mechanical,3,375,Mountain Climbing accident
+mechanical,4,386,House Fire
+mechanical,5,377,Plane emergency landing
+mechanical,6,368,Shipwreck survival
+mechanical,7,362,cave rescue 
+mechanical,8,416,Child Gone Missing 
+mechanical,9,401,Car Crash
+mechanical,10,359,Industrial Accident 
+mechanical,11,378,Violent Home Intrusion
+mechanical,12,354,Sudden Cariac Arrest  
+mechanical,13,359,Wildifre Approaching a town 
+mechanical,14,346,Bridge Collapse 
+mechanical,15,376,Chemical Spill Evac 
+mechanical,16,388,Avalanche Survival Gone Missing 
+mechanical,17,337,Kidnapping Escape 
+mechanical,18,329,Offshore Oil Rig Emergency
+mechanical,19,408,Final Story
+mechanicalprime,0,409,medical
+mechanicalprime,1,402,
+mechanicalprime,2,406,Natural disaster evacuation
+mechanicalprime,3,383,Mountain Climbing accident
+mechanicalprime,4,394,House Fire
+mechanicalprime,5,385,Plane emergency landing
+mechanicalprime,6,376,Shipwreck survival
+mechanicalprime,7,370,cave rescue 
+mechanicalprime,8,424,Child Gone Missing 
+mechanicalprime,9,409,Car Crash
+mechanicalprime,10,367,Industrial Accident 
+mechanicalprime,11,386,Violent Home Intrusion
+mechanicalprime,12,362,Sudden Cariac Arrest  
+mechanicalprime,13,367,Wildifre Approaching a town 
+mechanicalprime,14,354,Bridge Collapse 
+mechanicalprime,15,384,Chemical Spill Evac 
+mechanicalprime,16,396,Avalanche Survival Gone Missing 
+mechanicalprime,17,345,Kidnapping Escape 
+mechanicalprime,18,337,Offshore Oil Rig Emergency
+mechanicalprime,19,416,Final Story
